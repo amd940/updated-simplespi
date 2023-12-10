@@ -13,9 +13,10 @@ using namespace v8;
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
-static void errormsg(const char *s)
-{
-	ThrowException(Exception::Error(String::New(s)));
+static void errormsg(const char *s) {
+	Isolate* isolate = Isolate::GetCurrent();
+    static v8::Local<v8::String> errorMessage = v8::String::NewFromUtf8(isolate, s, v8::NewStringType::kNormal).ToLocalChecked();
+    isolate->ThrowException(Exception::Error(errorMessage));
 }
 
 const char* ToCString(const v8::String::Utf8Value& value) {
@@ -29,16 +30,16 @@ static uint16_t delay;
 
 
 // Send Function
-Handle<Value> Send(const Arguments& args) {
-    HandleScope scope;
+Local<Value> Send(const FunctionCallbackInfo<Value>& args) {
+    //HandleScope scope;
 
     int ret = 0;
 	int fd;
 
 
-
+    Isolate* isolate = Isolate::GetCurrent();
     //Hexstring as first Argument. Convert it to Hex-Array
-    String::Utf8Value str(args[0]);
+    static v8::Local<v8::String> str = v8::String::NewFromUtf8(isolate, args[0]).ToLocalChecked();
     const char* hexinput = ToCString(str);
 
     int len = strlen(hexinput);
@@ -127,8 +128,7 @@ Handle<Value> Send(const Arguments& args) {
     unsigned int i;
     char* buf_str = (char*) malloc (2*ARRAY_SIZE(rx)+1);
     char* buf_ptr = buf_str;
-    for (i = 0; i < ARRAY_SIZE(rx); i++)
-    {
+    for (i = 0; i < ARRAY_SIZE(rx); i++) {
        buf_ptr += sprintf(buf_ptr, "%02X", rx[i]);
     }
     *(buf_ptr + 1) = '\0';
@@ -143,9 +143,9 @@ Handle<Value> Send(const Arguments& args) {
 
 
 /*
-    Constructor des Moduls
+    Module Constructor
 */
-void init(Handle<Object> exports) {
+void init(Local<Object> exports) {
 
     exports->Set(String::NewSymbol("send"), FunctionTemplate::New(Send)->GetFunction());
 
