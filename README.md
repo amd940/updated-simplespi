@@ -1,5 +1,7 @@
-node-simplespi
+updated-simplespi
 ==============
+
+I am attempting to update this repository to work with the newer versions of the v8 engine as the older version does not compile.
 
 This is a simple and easy to use **SPI** module for **node.js**.
 
@@ -8,9 +10,7 @@ It uses a CLK frequency of 500kHz.
 
 ### Installation
 
-```sh
-npm install simplespi
-```
+Can not currently be installed at this stage. This will be updated once I've got it working.
 
 ### Usage
 
